@@ -10,7 +10,7 @@ if (isset($_SESSION["usertype"])) {
         //Gets the most recent week from the sales and increments
         $salesWeek = getWeekSale(); //Most recent week in sales table
         $currentWeek = getWeek(); //Most recent week in purchasing table
-        if ($salesWeek['week'] === $currentWeek['week']) {//Increases the current week only if there is already sales for the week
+        if (($salesWeek['week'] === $currentWeek['week'])&&$salesWeek['week']!=NULL) {//Increases the current week only if there is already sales for the week
             $currentWeek['week'] ++;
         }
 
@@ -50,40 +50,41 @@ if (isset($_SESSION["usertype"])) {
                 deleteItem($itemId);
             }
         }
+        
+        if($currentWeek['week']>0){
+            $inventory = getInventoryOrderedLow(); //Pull ordered Inventory
+            //Setting the Cards
+            //
+            //Set Low inventory card
+            $lowInventory = array();
+            for ($i = 0; $i < 3; $i++) {
+                if ($inventory[$i]['orderAmount'] < 100) {
+                    array_push($lowInventory, $inventory[$i]['name']);
+                } else {
+                    array_push($lowInventory, ''); //adds empty string to array incase less than three items are low
+                }
+            }
+            //Sets the best selling Card
+            $bestSelling = getBestSellingLastWeek($salesWeek['week']); //Pulls the most beers sold in the most recent week ordered by most sold
+            $count = count($bestSelling); //Pulls back 1 if 1
+            if (count($bestSelling) < 3) {
+                $count;
+                $bestSelling += [ $count => ['name' => ""]];
+                $count++;
+                $bestSelling += [ $count => ['name' => ""]];
+            }
+            //Sets the Highest Profit Card
+            $highestProfit = getHighestProfitLastWeek($salesWeek['week']);
+            $count = count($highestProfit);
 
-        $inventory = getInventoryOrderedLow(); //Pull ordered Inventory
-        //Setting the Cards
-        //
-        //Set Low inventory card
-        $lowInventory = array();
-        for ($i = 0; $i < 3; $i++) {
-            if ($inventory[$i]['orderAmount'] < 100) {
-                array_push($lowInventory, $inventory[$i]['name']);
-            } else {
-                array_push($lowInventory, ''); //adds empty string to array incase less than three items are low
+            if($count<3){
+
+                $count;
+                $highestProfit += [ $count => ['name' => "", 'totalProfit' => ""]];
+                $count++;
+                $highestProfit += [ $count => ['name' => "", 'totalProfit' => ""]];
             }
         }
-        //Sets the best selling Card
-        $bestSelling = getBestSellingLastWeek($salesWeek['week']); //Pulls the most beers sold in the most recent week ordered by most sold
-        $count = count($bestSelling); //Pulls back 1 if 1
-        if (count($bestSelling) < 3) {
-            $count;
-            $bestSelling += [ $count => ['name' => ""]];
-            $count++;
-            $bestSelling += [ $count => ['name' => ""]];
-        }
-        //Sets the Highest Profit Card
-        $highestProfit = getHighestProfitLastWeek($salesWeek['week']);
-        $count = count($highestProfit);
-
-        if($count<3){
-
-            $count;
-            $highestProfit += [ $count => ['name' => "", 'totalProfit' => ""]];
-            $count++;
-            $highestProfit += [ $count => ['name' => "", 'totalProfit' => ""]];
-        }
-
     }
     else{
 

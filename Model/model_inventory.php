@@ -229,7 +229,7 @@
         
         if($stmt->execute() && $stmt->rowCount()>0){
             $results = $stmt->fetch(PDO::FETCH_ASSOC);
-            if(empty($results)){
+            if($results['week']==NULL){
                 $results = ['week' => 0];
             }
             return $results;
@@ -258,7 +258,7 @@
         
         if($stmt->execute() && $stmt->rowCount()>0){
             $results = $stmt->fetch(PDO::FETCH_ASSOC);
-            if(empty($results)){
+            if($results['week']==NULL){
                 $results = ['week' => 0];
             }
             return $results;
@@ -455,7 +455,7 @@
     function getBestSellingLastWeek($week){
         global $db;
         
-        $stmt=$db->prepare("SELECT week, sales.idItem, inventory.`name`, SUM(sales.amount) AS totalAmount FROM sales INNER JOIN inventory ON sales.idItem=inventory.idItem WHERE `week` = :week GROUP BY sales.idItem ORDER BY totalAmount DESC;");
+        $stmt=$db->prepare("SELECT `week`, sales.idItem, inventory.`name`, SUM(sales.amount) AS totalAmount FROM sales INNER JOIN inventory ON sales.idItem=inventory.idItem WHERE `week` = 1 GROUP BY sales.idItem ORDER BY totalAmount DESC;");
         
         $binds = array(
             ":week" => $week
@@ -609,8 +609,11 @@
         }
         return $results;
     }
-    
-   
-
-    
+/*
+    $test = getWeekSale();
+    if($test['week']==NULL){
+                $test = ['week' => 0];
+            }
+    var_dump($test);
+    */
 ?>
